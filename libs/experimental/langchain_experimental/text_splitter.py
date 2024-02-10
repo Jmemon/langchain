@@ -77,9 +77,10 @@ class SemanticChunker(BaseDocumentTransformer):
     sentences, and then merges one that are similar in the embedding space.
     """
 
-    def __init__(self, embeddings: Embeddings, add_start_index: bool = False):
+    def __init__(self, embeddings: Embeddings, add_start_index: bool = False, breakpoint_percentile_threshold: int = 95):
         self._add_start_index = add_start_index
         self.embeddings = embeddings
+        self.breakpoint_percentile_threshold = breakpoint_percentile_threshold
 
     def split_text(self, text: str) -> List[str]:
         """Split text into multiple components."""
@@ -105,9 +106,8 @@ class SemanticChunker(BaseDocumentTransformer):
 
         # Create a list to hold the grouped sentences
         chunks = []
-        breakpoint_percentile_threshold = 95
         breakpoint_distance_threshold = np.percentile(
-            distances, breakpoint_percentile_threshold
+            distances, self.breakpoint_percentile_threshold
         )  # If you want more chunks, lower the percentile cutoff
 
         indices_above_thresh = [
